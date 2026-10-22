@@ -2,12 +2,12 @@
 // Leave firebaseConfig.apiKey empty to run in DEMO MODE (data saved in this browser only).
 // To go live: create a Firebase project, add a Web app, and paste its config here.
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyDqCeNIxArdVW-iX8JWXVai-9YsegQwmhE",
+  authDomain: "kaya-rentals.firebaseapp.com",
+  projectId: "kaya-rentals",
+  storageBucket: "kaya-rentals.firebasestorage.app",
+  messagingSenderId: "150575832693",
+  appId: "1:150575832693:web:242b779cd0aa01d151223c"
 };
 
 export const SITE = {
@@ -15,7 +15,7 @@ export const SITE = {
   tagline: "Affordable homes to rent, listed by the owners themselves",
   maxRent: 6000,
   supportEmail: "rangariraimutasa@gmail.com",
-  maxPhotos: 6,
+  maxPhotos: 5,
   maxListingsPerOwner: 5
 };
 
