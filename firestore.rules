@@ -13,7 +13,8 @@ service cloud.firestore {
         && d.suburb is string && d.suburb.size() > 0 && d.suburb.size() <= 60
         && d.contactPhone is string && d.contactPhone.matches('^(\\+27|0)[6-8][0-9]{8}$')
         && d.ownerDeclaration == true
-        && d.photos is list && d.photos.size() <= 6;
+        && (!('thumb' in d) || (d.thumb is string && d.thumb.size() < 80000))
+        && (!('photos' in d));
     }
 
     match /listings/{id} {
@@ -30,6 +31,18 @@ service cloud.firestore {
                         && request.resource.data.status in ['pending', 'let']
                         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerId', 'verified', 'createdAt', 'rejectReason', 'reviewedAt'])
                         && validListing(request.resource.data));
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    match /photos/{id} {
+      function listing() { return get(/databases/$(database)/documents/listings/$(id)).data; }
+      allow read: if listing().status == 'approved'
+                  || (signedIn() && resource.data.ownerId == request.auth.uid)
+                  || isAdmin();
+      allow create, update: if signedIn()
+                  && request.resource.data.ownerId == request.auth.uid
+                  && listing().ownerId == request.auth.uid
+                  && request.resource.data.photos is list && request.resource.data.photos.size() <= 5;
       allow delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
     }
 
