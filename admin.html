@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin · Kaya Rentals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="wrap">
+  <div id="denied" class="empty" hidden><h3>Admins only</h3><p><a href="owner.html">Sign in</a> with an admin account.</p></div>
+  <section id="adminView" hidden>
+    <h1>Review listings</h1>
+    <p class="muted">Check each listing before approving: rent is R6,000 or less, photos look real, contact number works, and the person is the owner. Call the owner and ask for proof (municipal rates bill or title deed in their name, plus ID) before marking them verified.</p>
+    <div class="tabs" id="statusTabs">
+      <button data-s="pending" class="on">Waiting</button><button data-s="approved">Live</button><button data-s="rejected">Rejected</button><button data-s="let">Rented</button><button data-s="reports">Reports</button>
+    </div>
+    <div id="list" class="mine"></div>
+  </section>
+</main>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
