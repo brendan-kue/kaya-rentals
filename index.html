@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaya Rentals · Affordable homes to rent in South Africa, from owners</title>
+<meta name="description" content="Rooms, backrooms, flats and houses to rent for R6,000 a month or less anywhere in South Africa, listed directly by verified owners.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<section class="hero">
+  <div class="wrap">
+    <h1>Affordable homes to rent, straight from the owner.</h1>
+    <p>Every place on Kaya Rentals costs <strong>R6,000 a month or less</strong> and is listed by its owner. No agents, no fees to search.</p>
+    <form id="filters" class="filters" autocomplete="off">
+      <input name="q" type="search" placeholder="Town, suburb or area (e.g. Pinetown)" aria-label="Search area">
+      <select name="province" aria-label="Province"><option value="">All provinces</option></select>
+      <select name="type" aria-label="Property type"><option value="">Any type</option></select>
+      <select name="maxRent" aria-label="Maximum rent">
+        <option value="">Up to R6,000</option><option value="2000">Up to R2,000</option><option value="3000">Up to R3,000</option>
+        <option value="4000">Up to R4,000</option><option value="5000">Up to R5,000</option>
+      </select>
+      <select name="bedrooms" aria-label="Bedrooms"><option value="">Any bedrooms</option><option value="1">1+ bed</option><option value="2">2+ beds</option><option value="3">3+ beds</option></select>
+      <button class="btn primary" type="submit">Search</button>
+    </form>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="results-head">
+    <h2 id="count">Loading listings…</h2>
+    <select id="sort" aria-label="Sort"><option value="new">Newest first</option><option value="cheap">Cheapest first</option><option value="dear">Most expensive first</option></select>
+  </div>
+  <div id="grid" class="grid"></div>
+  <div id="empty" class="empty" hidden>
+    <h3>No homes match yet</h3>
+    <p>Try another area or a higher rent limit. Own a place under R6,000? <a href="owner.html">List it free</a>.</p>
+  </div>
+  <section class="cta-owner">
+    <div><h3>Own a room, flat or house?</h3><p>List it free in five minutes. We check every listing before it goes live.</p></div>
+    <a class="btn gold" href="owner.html">List your property</a>
+  </section>
+</main>
+
+<dialog id="detail" class="detail"></dialog>
+
+<script type="module" src="js/browse.js"></script>
+</body>
+</html>
