@@ -30,7 +30,7 @@ async function render() {
           <p><b>${rand(l.rent)}</b> / month · deposit ${rand(l.deposit)} · ${esc(l.type)} · ${esc(l.bedrooms)} bed</p>
           <p class="muted">${esc(l.suburb)}, ${esc(l.city)}, ${esc(l.province)}</p>
           <p class="small">${esc(l.description)}</p>
-          <p class="small">Owner: <b>${esc(l.ownerName)}</b> · <a href="tel:${esc(l.contactPhone)}">${esc(l.contactPhone)}</a> · ${(l.photos || []).length} photos · declaration ${l.ownerDeclaration ? "✔" : "✘"}</p>
+          <p class="small">Owner: <b>${esc(l.ownerName)}</b> · <a href="tel:${esc(l.contactPhone)}">${esc(l.contactPhone)}</a> · ${l.photoCount ?? (l.photos || []).length} photos · declaration ${l.ownerDeclaration ? "✔" : "✘"}</p>
           ${l.rent > 6000 ? '<p class="bad-text">Rent is over R6,000. Reject.</p>' : ""}
         </div>
         <div class="actions col">
