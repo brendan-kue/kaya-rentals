@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function provinces() { return ['Eastern Cape','Free State','Gauteng','KwaZulu-Natal','Limpopo','Mpumalanga','North West','Northern Cape','Western Cape']; }
+    function validListing(d) {
+      return d.rent is int && d.rent >= 300 && d.rent <= 6000
+        && d.title is string && d.title.size() >= 8 && d.title.size() <= 80
+        && d.description is string && d.description.size() >= 30 && d.description.size() <= 1500
+        && d.province in provinces()
+        && d.city is string && d.city.size() > 0 && d.city.size() <= 60
+        && d.suburb is string && d.suburb.size() > 0 && d.suburb.size() <= 60
+        && d.contactPhone is string && d.contactPhone.matches('^(\\+27|0)[6-8][0-9]{8}$')
+        && d.ownerDeclaration == true
+        && d.photos is list && d.photos.size() <= 6;
+    }
+
+    match /listings/{id} {
+      allow read: if resource.data.status == 'approved'
+                  || (signedIn() && resource.data.ownerId == request.auth.uid)
+                  || isAdmin();
+      allow create: if signedIn()
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.verified == false
+                    && validListing(request.resource.data);
+      allow update: if isAdmin()
+                    || (signedIn() && resource.data.ownerId == request.auth.uid
+                        && request.resource.data.status in ['pending', 'let']
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerId', 'verified', 'createdAt', 'rejectReason', 'reviewedAt'])
+                        && validListing(request.resource.data));
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    match /owners/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid
+                            && request.resource.data.keys().hasOnly(['name', 'phone', 'email', 'createdAt']);
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false; // add admins by hand in the Firebase console
+    }
+
+    match /reports/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['listingId', 'reason', 'createdAt'])
+                    && request.resource.data.reason is string && request.resource.data.reason.size() <= 500;
+      allow read, delete: if isAdmin();
+    }
+  }
+}
