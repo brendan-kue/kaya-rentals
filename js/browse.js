@@ -47,7 +47,8 @@ async function open(id) {
   const l = current.find(x => x.id === id) || await store.getListing(id);
   if (!l || l.status !== "approved") return toast("That listing is no longer available.", true);
   const d = $("#detail");
-  const photos = (l.photos || []).length ? l.photos.map(p => `<img src="${esc(p)}" alt="" loading="lazy">`).join("") : photoBlock(l, "big");
+  const pics = l.photos?.length ? l.photos : await store.getPhotos(l.id);
+  const photos = pics.length ? pics.map(p => `<img src="${esc(p)}" alt="" loading="lazy">`).join("") : photoBlock(l, "big");
   const msg = encodeURIComponent(`Hi, I saw your listing "${l.title}" on Kaya Rentals. Is it still available?`);
   d.innerHTML = `
     <button class="close" aria-label="Close">×</button>
