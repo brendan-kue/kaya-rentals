@@ -6,14 +6,13 @@ let fb = null; // lazily loaded firebase modules + instances
 
 async function firebase() {
   if (fb) return fb;
-  const [appM, authM, fsM, stM] = await Promise.all([
+  const [appM, authM, fsM] = await Promise.all([
     import(FB + "firebase-app.js"),
     import(FB + "firebase-auth.js"),
-    import(FB + "firebase-firestore.js"),
-    import(FB + "firebase-storage.js")
+    import(FB + "firebase-firestore.js")
   ]);
   const app = appM.initializeApp(firebaseConfig);
-  fb = { ...authM, ...fsM, ...stM, auth: authM.getAuth(app), db: fsM.getFirestore(app), st: stM.getStorage(app) };
+  fb = { ...authM, ...fsM, auth: authM.getAuth(app), db: fsM.getFirestore(app) };
   return fb;
 }
 
@@ -44,6 +43,13 @@ export async function resizeImage(file, max = 1280, quality = 0.75) {
   c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
   c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
   return new Promise(res => c.toBlob(b => res(b), "image/jpeg", quality));
+}
+
+export async function toDataURL(fileOrUrl, max, quality) {
+  let file = fileOrUrl;
+  if (typeof fileOrUrl === "string") file = await (await fetch(fileOrUrl)).blob();
+  const blob = await resizeImage(file, max, quality);
+  return new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
 }
 
 function applyFilters(list, f = {}) {
@@ -101,10 +107,8 @@ const demo = {
     write(LS.listings, all);
   },
   async deleteListing(user, id) { write(LS.listings, read(LS.listings, []).filter(l => !(l.id === id && (l.ownerId === user.uid || user.admin)))); },
-  async uploadPhoto(user, file) {
-    const blob = await resizeImage(file, 900, 0.65);
-    return new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
-  },
+  async uploadPhoto(user, file) { return toDataURL(file, 900, 0.65); },
+  async getPhotos(id) { const l = read(LS.listings, []).find(x => x.id === id); return l?.photos || []; },
   async signUp({ name, email, password, phone }) {
     const users = read(LS.users, []);
     if (users.find(u => u.email === email.toLowerCase())) throw new Error("An account with this email already exists.");
@@ -147,22 +151,29 @@ const live = {
   },
   async saveListing(user, data, id) {
     const F = await firebase();
-    const clean = { ...data, rent: Number(data.rent), deposit: Number(data.deposit || 0), bedrooms: Number(data.bedrooms || 0), bathrooms: Number(data.bathrooms || 0) };
+    const { photos = [], ...rest } = data;
+    const thumb = photos.length ? await toDataURL(photos[0], 420, 0.6) : "";
+    const clean = { ...rest, thumb, photoCount: photos.length, rent: Number(data.rent), deposit: Number(data.deposit || 0), bedrooms: Number(data.bedrooms || 0), bathrooms: Number(data.bathrooms || 0) };
     if (id) {
       await F.updateDoc(F.doc(F.db, "listings", id), { ...clean, status: data.status === "let" ? "let" : "pending", updatedAt: F.serverTimestamp() });
     } else {
       const mine = await this.myListings(user.uid);
       if (mine.length >= SITE.maxListingsPerOwner) throw new Error(`You can have up to ${SITE.maxListingsPerOwner} listings.`);
-      await F.addDoc(F.collection(F.db, "listings"), { ...clean, ownerId: user.uid, ownerName: user.name, status: "pending", verified: false, createdAt: F.serverTimestamp() });
+      const ref = await F.addDoc(F.collection(F.db, "listings"), { ...clean, ownerId: user.uid, ownerName: user.name, status: "pending", verified: false, createdAt: F.serverTimestamp() });
+      id = ref.id;
     }
+    await F.setDoc(F.doc(F.db, "photos", id), { ownerId: user.uid, photos });
   },
-  async deleteListing(user, id) { const F = await firebase(); await F.deleteDoc(F.doc(F.db, "listings", id)); },
-  async uploadPhoto(user, file) {
+  async deleteListing(user, id) {
     const F = await firebase();
-    const blob = await resizeImage(file);
-    const r = F.ref(F.st, `listings/${user.uid}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.jpg`);
-    await F.uploadBytes(r, blob, { contentType: "image/jpeg" });
-    return F.getDownloadURL(r);
+    try { await F.deleteDoc(F.doc(F.db, "photos", id)); } catch {}
+    await F.deleteDoc(F.doc(F.db, "listings", id));
+  },
+  // Photos are stored compressed in Firestore (photos/{listingId}) because Cloud Storage needs the paid Blaze plan.
+  async uploadPhoto(user, file) { return toDataURL(file, 900, 0.62); },
+  async getPhotos(id) {
+    const F = await firebase();
+    try { const d = await F.getDoc(F.doc(F.db, "photos", id)); return d.exists() ? d.data().photos || [] : []; } catch { return []; }
   },
   async signUp({ name, email, password, phone }) {
     const F = await firebase();
