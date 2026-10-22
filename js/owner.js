@@ -71,8 +71,8 @@ $("#newBtn").onclick = () => openForm(null);
 $("#backBtn").onclick = () => renderDash();
 
 /* form */
-function openForm(l) {
-  editing = l; photos = l ? [...(l.photos || [])] : [];
+async function openForm(l) {
+  editing = l; photos = l ? [...(l.photos?.length ? l.photos : await store.getPhotos(l.id))] : [];
   L.reset(); $("#errors").hidden = true;
   $("#formTitle").textContent = l ? "Edit listing" : "Add a listing";
   $("#letWrap").hidden = !l;
