@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List your property · Kaya Rentals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="wrap narrow">
+
+  <section id="authView" hidden>
+    <h1>List your property free</h1>
+    <p class="lead">Only owners (or people legally allowed to sublet) can list. Homes must rent for R6,000 a month or less. Every listing is checked before it goes live.</p>
+    <div class="tabs"><button data-tab="signup" class="on">Create owner account</button><button data-tab="signin">Sign in</button></div>
+
+    <form id="signup" class="panel">
+      <label>Full name<input name="name" required minlength="3" autocomplete="name"></label>
+      <label>Mobile number<input name="phone" required placeholder="082 123 4567" autocomplete="tel"></label>
+      <label>Email<input name="email" type="email" required autocomplete="email"></label>
+      <label>Password<input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+      <label class="check"><input type="checkbox" name="terms" required> I agree to the <a href="about.html#terms" target="_blank">Terms</a> and <a href="about.html#privacy" target="_blank">Privacy Policy</a>, and I am 18 or older.</label>
+      <button class="btn primary full">Create account</button>
+    </form>
+
+    <form id="signin" class="panel" hidden>
+      <label>Email<input name="email" type="email" required autocomplete="email"></label>
+      <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
+      <button class="btn primary full">Sign in</button>
+      <button type="button" class="link" id="forgot">Forgot password?</button>
+    </form>
+  </section>
+
+  <section id="dashView" hidden>
+    <div class="dash-head">
+      <div><h1>Your listings</h1><p class="muted" id="hello"></p></div>
+      <div class="actions"><button class="btn primary" id="newBtn">+ Add a listing</button><button class="btn ghost" id="outBtn">Sign out</button></div>
+    </div>
+    <p class="note" id="verifyNote" hidden>Please confirm your email address. We sent you a link.</p>
+    <div id="mine" class="mine"></div>
+  </section>
+
+  <section id="formView" hidden>
+    <button class="link" id="backBtn">← Back to your listings</button>
+    <h1 id="formTitle">Add a listing</h1>
+    <form id="listing" class="panel">
+      <label>Listing title<input name="title" required maxlength="80" placeholder="e.g. Neat backroom with own entrance"></label>
+      <div class="row">
+        <label>Property type<select name="type" required><option value="">Choose…</option></select></label>
+        <label>Monthly rent (R)<input name="rent" type="number" required min="300" max="6000" step="1" inputmode="numeric"></label>
+        <label>Deposit (R)<input name="deposit" type="number" min="0" step="1" inputmode="numeric"></label>
+      </div>
+      <div class="row">
+        <label>Bedrooms<input name="bedrooms" type="number" min="0" max="6" value="1"></label>
+        <label>Bathrooms<input name="bathrooms" type="number" min="0" max="4" value="1"></label>
+        <label>Available from<input name="availableFrom" type="date"></label>
+      </div>
+      <div class="row">
+        <label>Province<select name="province" required><option value="">Choose…</option></select></label>
+        <label>Town or city<input name="city" required maxlength="60"></label>
+        <label>Suburb or area<input name="suburb" required maxlength="60"></label>
+      </div>
+      <p class="small muted">Don't put your street address here. Share it with tenants when they arrange a viewing.</p>
+      <label>Description<textarea name="description" required rows="5" maxlength="1500" placeholder="What's included, who it suits, transport nearby, house rules…"></textarea></label>
+      <fieldset><legend>Features</legend><div id="features" class="feature-grid"></div></fieldset>
+      <fieldset><legend>Photos (up to 6)</legend>
+        <div id="photos" class="photo-grid"></div>
+        <label class="btn ghost upload">Add photos<input type="file" id="photoInput" accept="image/*" multiple hidden></label>
+      </fieldset>
+      <div class="row">
+        <label>Contact number for tenants<input name="contactPhone" required placeholder="082 123 4567"></label>
+        <label class="check pad"><input type="checkbox" name="whatsapp" checked> Tenants can WhatsApp me on this number</label>
+      </div>
+      <label class="check" id="letWrap" hidden><input type="checkbox" name="isLet"> This place has been rented out (hide it from search)</label>
+      <label class="check declare"><input type="checkbox" name="ownerDeclaration" required> I confirm I am the owner of this property, or I have the owner's written permission to rent it out, and the details are true. False listings are removed and may be reported to SAPS.</label>
+      <div id="errors" class="errors" hidden></div>
+      <button class="btn primary full" id="saveBtn">Submit for review</button>
+    </form>
+  </section>
+
+</main>
+<script type="module" src="js/owner.js"></script>
+</body>
+</html>
