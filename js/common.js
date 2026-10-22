@@ -48,6 +48,7 @@ export function chrome(active) {
 }
 
 export function photoBlock(l, cls = "") {
-  if (l.photos && l.photos.length) return `<img class="${cls}" src="${esc(l.photos[0])}" alt="${esc(l.title)}" loading="lazy">`;
+  const src = l.thumb || (l.photos && l.photos[0]);
+  if (src) return `<img class="${cls}" src="${esc(src)}" alt="${esc(l.title)}" loading="lazy">`;
   return `<div class="${cls} nophoto"><svg viewBox="0 0 24 24" width="42" height="42"><path fill="currentColor" d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg></div>`;
 }
