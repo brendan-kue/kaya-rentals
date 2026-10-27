@@ -1,4 +1,4 @@
-import { PROVINCES, PROPERTY_TYPES, FEATURES, SITE, DEMO } from "./config.js";
+import { PROVINCES, PROPERTY_TYPES, FEATURES, SITE, DEMO, PRICES } from "./config.js";
 import { store, validateListing } from "./data.js";
 import { chrome, esc, rand, $, $$, toast, photoBlock } from "./common.js";
 
@@ -41,6 +41,9 @@ $("#outBtn").onclick = () => store.signOut();
 
 store.onAuth(u => { user = u; if (!u) return show("authView"); renderDash(); });
 
+/* paid extras: request goes to Kaya on WhatsApp */
+const boostLink = (l, what) => `https://wa.me/${SITE.salesWhatsApp}?text=${encodeURIComponent(`Hi Kaya Rentals, I'd like to ${what} for my listing "${l.title}" (ID ${l.id}). My name is ${user?.name || ""}.`)}`;
+
 /* dashboard */
 const STATUS = { pending: ["Waiting for review", "warn"], approved: ["Live", "ok"], rejected: ["Not approved", "bad"], let: ["Rented out", "muted"] };
 async function renderDash() {
@@ -53,7 +56,12 @@ async function renderDash() {
     return `<article class="mine-item">
       <div class="thumb">${photoBlock(l)}</div>
       <div class="info"><h3>${esc(l.title)}</h3><p class="muted">${rand(l.rent)} / month · ${esc(l.suburb)}, ${esc(l.city)}</p>
-        <span class="badge ${cls} inline">${label}</span>${l.rejectReason ? `<p class="small bad-text">Reason: ${esc(l.rejectReason)}</p>` : ""}</div>
+        <span class="badge ${cls} inline">${label}</span>${Number(l.featuredUntil||0) > Date.now() ? ` <span class="badge feat inline">★ Featured until ${new Date(l.featuredUntil).toLocaleDateString("en-ZA")}</span>` : ""}${l.rejectReason ? `<p class="small bad-text">Reason: ${esc(l.rejectReason)}</p>` : ""}
+        ${l.status === "approved" ? `<div class="boost">
+          <a class="btn small gold" target="_blank" rel="noopener" href="${boostLink(l, `Feature it for 7 days (R${PRICES.featuredWeek})`)}">★ Feature R${PRICES.featuredWeek}/week</a>
+          <a class="btn small ghost" target="_blank" rel="noopener" href="${boostLink(l, `Bump it to the top (R${PRICES.bump})`)}">↑ Bump R${PRICES.bump}</a>
+          ${l.verified ? "" : `<a class="btn small ghost" target="_blank" rel="noopener" href="${boostLink(l, `Fast-track owner verification (R${PRICES.fastVerify})`)}">✔ Get verified today R${PRICES.fastVerify}</a>`}
+        </div>` : ""}</div>
       <div class="actions"><button class="btn ghost" data-edit="${esc(l.id)}">Edit</button><button class="btn ghost danger" data-del="${esc(l.id)}">Delete</button></div>
     </article>`;
   }).join("") : `<div class="empty"><h3>No listings yet</h3><p>Add your first property. It's free.</p></div>`;
