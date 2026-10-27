@@ -16,7 +16,13 @@ export const SITE = {
   maxRent: 6000,
   supportEmail: "rangariraimutasa@gmail.com",
   maxPhotos: 5,
-  maxListingsPerOwner: 5
+  maxListingsPerOwner: 5,
+  salesWhatsApp: "27767390886"
+};
+
+// Paid extras for owners. Tenants never pay.
+export const PRICES = {
+  featuredWeek: 49, featuredMonth: 149, bump: 20, fastVerify: 79, sponsorMonth: 250
 };
 
 export const PROVINCES = [
