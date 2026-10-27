@@ -17,6 +17,8 @@ async function firebase() {
 }
 
 /* ---------- helpers ---------- */
+export const isFeatured = l => Number(l.featuredUntil || 0) > Date.now();
+
 export function validateListing(l) {
   const errs = [];
   const rent = Number(l.rent);
@@ -62,9 +64,12 @@ function applyFilters(list, f = {}) {
     const q = f.q.toLowerCase();
     out = out.filter(l => [l.city, l.suburb, l.title, l.description].join(" ").toLowerCase().includes(q));
   }
+  const fresh = l => Math.max(l.bumpedAt || 0, l.createdAt || 0);
   if (f.sort === "cheap") out.sort((a, b) => a.rent - b.rent);
   else if (f.sort === "dear") out.sort((a, b) => b.rent - a.rent);
-  else out.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  else out.sort((a, b) => fresh(b) - fresh(a));
+  // Featured listings always sit on top (stable sort keeps the order above within each group)
+  out.sort((a, b) => (isFeatured(b) ? 1 : 0) - (isFeatured(a) ? 1 : 0));
   return out;
 }
 
