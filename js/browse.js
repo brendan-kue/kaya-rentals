@@ -1,6 +1,6 @@
 import { PROVINCES, PROPERTY_TYPES } from "./config.js";
 import { store } from "./data.js";
-import { chrome, esc, rand, $, toast, waNumber, photoBlock } from "./common.js";
+import { chrome, esc, rand, $, toast, waNumber, photoBlock, badges } from "./common.js";
 
 chrome("browse");
 const form = $("#filters");
@@ -32,8 +32,8 @@ async function load() {
 }
 
 function card(l) {
-  return `<a class="card" href="?listing=${encodeURIComponent(l.id)}" data-id="${esc(l.id)}" style="text-decoration:none;color:inherit">
-    <div class="ph">${photoBlock(l)}${l.verified ? '<span class="badge ok">Owner verified</span>' : ""}</div>
+  return `<a class="card${Number(l.featuredUntil || 0) > Date.now() ? " featured" : ""}" href="?listing=${encodeURIComponent(l.id)}" data-id="${esc(l.id)}" style="text-decoration:none;color:inherit">
+    <div class="ph">${photoBlock(l)}${badges(l)}</div>
     <div class="body">
       <div class="price">${rand(l.rent)} <small>/ month</small></div>
       <h3>${esc(l.title)}</h3>
