@@ -29,6 +29,7 @@ export function chrome(active) {
       <a href="index.html" class="${active === "browse" ? "on" : ""}">Find a place</a>
       <a href="owner.html" class="${active === "owner" ? "on" : ""}">List your property</a>
       <a href="about.html" class="${active === "about" ? "on" : ""}">How it works</a>
+      <a href="advertise.html" class="${active === "advertise" ? "on" : ""}">Advertise</a>
       <a href="admin.html" id="adminLink" class="${active === "admin" ? "on" : ""}" hidden>Admin</a>
     </nav>`;
   document.body.prepend(header);
@@ -42,7 +43,7 @@ export function chrome(active) {
   footer.className = "site-footer";
   footer.innerHTML = `
     <p><strong>${SITE.name}</strong> · Homes at ${rand(SITE.maxRent)} a month or less, listed by owners. No agents, no listing fees for tenants.</p>
-    <p>Never pay a deposit before you have viewed the property and signed a lease. <a href="about.html#safety">Rental safety tips</a> · <a href="about.html#privacy">Privacy (POPIA)</a> · <a href="about.html#terms">Terms</a> · <a href="mailto:${SITE.supportEmail}">Contact</a></p>`;
+    <p>Never pay a deposit before you have viewed the property and signed a lease. <a href="about.html#safety">Rental safety tips</a> · <a href="about.html#privacy">Privacy (POPIA)</a> · <a href="about.html#terms">Terms</a> · <a href="advertise.html">Advertise / Boost a listing</a> · <a href="mailto:${SITE.supportEmail}">Contact</a></p>`;
   document.body.appendChild(footer);
   store.onAuth(u => { const a = $("#adminLink"); if (a) a.hidden = !(u && u.admin); });
 }
@@ -51,4 +52,9 @@ export function photoBlock(l, cls = "") {
   const src = l.thumb || (l.photos && l.photos[0]);
   if (src) return `<img class="${cls}" src="${esc(src)}" alt="${esc(l.title)}" loading="lazy">`;
   return `<div class="${cls} nophoto"><svg viewBox="0 0 24 24" width="42" height="42"><path fill="currentColor" d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></svg></div>`;
+}
+
+export function badges(l) {
+  const f = Number(l.featuredUntil || 0) > Date.now();
+  return `<span class="badges">${f ? '<span class="badge feat">★ Featured</span>' : ""}${l.verified ? '<span class="badge ok">Owner verified</span>' : ""}</span>`;
 }
