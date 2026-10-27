@@ -26,7 +26,7 @@ async function render() {
       const items = await store.adminList(tab);
       box.innerHTML = items.length ? items.map(l => `<article class="mine-item admin">
         <div class="thumb">${photoBlock(l)}</div>
-        <div class="info"><h3>${esc(l.title)} ${l.verified ? '<span class="badge ok inline">Verified</span>' : ""}</h3>
+        <div class="info"><h3>${esc(l.title)} ${l.verified ? '<span class="badge ok inline">Verified</span>' : ""} ${Number(l.featuredUntil||0) > Date.now() ? `<span class="badge feat inline">★ Featured until ${new Date(l.featuredUntil).toLocaleDateString("en-ZA")}</span>` : ""}</h3>
           <p><b>${rand(l.rent)}</b> / month · deposit ${rand(l.deposit)} · ${esc(l.type)} · ${esc(l.bedrooms)} bed</p>
           <p class="muted">${esc(l.suburb)}, ${esc(l.city)}, ${esc(l.province)}</p>
           <p class="small">${esc(l.description)}</p>
@@ -36,6 +36,10 @@ async function render() {
         <div class="actions col">
           ${tab !== "approved" ? `<button class="btn primary" data-act="approved" data-id="${esc(l.id)}">Approve</button>` : ""}
           <button class="btn ghost" data-act="verify" data-id="${esc(l.id)}" data-v="${l.verified ? 1 : 0}">${l.verified ? "Remove verified" : "Mark owner verified"}</button>
+          ${tab === "approved" ? `<button class="btn ghost" data-act="feat7" data-id="${esc(l.id)}">★ Feature 7 days</button>
+          <button class="btn ghost" data-act="feat30" data-id="${esc(l.id)}">★ Feature 30 days</button>
+          ${Number(l.featuredUntil||0) > Date.now() ? `<button class="btn ghost" data-act="unfeat" data-id="${esc(l.id)}">Remove featured</button>` : ""}
+          <button class="btn ghost" data-act="bump" data-id="${esc(l.id)}">↑ Bump to top</button>` : ""}
           ${tab !== "rejected" ? `<button class="btn ghost danger" data-act="rejected" data-id="${esc(l.id)}">Reject</button>` : ""}
           <button class="btn ghost danger" data-act="delete" data-id="${esc(l.id)}">Delete</button>
         </div></article>`).join("") : "<div class='empty'><p>Nothing here.</p></div>";
@@ -50,6 +54,13 @@ $("#list").addEventListener("click", async e => {
     if (act === "approved") await store.setStatus(id, "approved", { rejectReason: "" });
     if (act === "rejected") { const r = prompt("Reason for the owner (shown on their dashboard):", "Couldn't confirm you're the owner."); if (r === null) return; await store.setStatus(id, "rejected", { rejectReason: r }); }
     if (act === "verify") { const l = (await store.adminList()).find(x => x.id === id); await store.setStatus(id, l.status, { verified: b.dataset.v !== "1" }); }
+    if (act === "feat7" || act === "feat30") {
+      const l = (await store.adminList("approved")).find(x => x.id === id);
+      const base = Math.max(Date.now(), Number(l.featuredUntil || 0)); // extends an active feature
+      await store.setStatus(id, "approved", { featuredUntil: base + (act === "feat7" ? 7 : 30) * 864e5 });
+    }
+    if (act === "unfeat") await store.setStatus(id, "approved", { featuredUntil: 0 });
+    if (act === "bump") await store.setStatus(id, "approved", { bumpedAt: Date.now() });
     if (act === "delete") { if (!confirm("Delete permanently?")) return; await store.deleteListing({ admin: true }, id); }
     toast("Done"); render();
   } catch (err) { toast(err.message, true); }
