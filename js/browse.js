@@ -32,7 +32,7 @@ async function load() {
 }
 
 function card(l) {
-  return `<article class="card" data-id="${esc(l.id)}" tabindex="0">
+  return `<a class="card" href="?listing=${encodeURIComponent(l.id)}" data-id="${esc(l.id)}" style="text-decoration:none;color:inherit">
     <div class="ph">${photoBlock(l)}${l.verified ? '<span class="badge ok">Owner verified</span>' : ""}</div>
     <div class="body">
       <div class="price">${rand(l.rent)} <small>/ month</small></div>
@@ -40,7 +40,7 @@ function card(l) {
       <p class="muted">${esc(l.type)} · ${esc(l.suburb)}, ${esc(l.city)}</p>
       <p class="muted small">${l.bedrooms ? esc(l.bedrooms) + " bed · " : ""}${esc(l.province)}</p>
     </div>
-  </article>`;
+  </a>`;
 }
 
 async function open(id) {
@@ -76,6 +76,8 @@ async function open(id) {
       <p class="warn">Safety: view the place in person and sign a written lease before paying anything. Never pay to "reserve" a home you haven't seen.</p>
       <button class="link report">Report this listing</button>
     </div>`;
+  document.title = `${l.title} - ${rand(l.rent)}/month in ${l.suburb}, ${l.city} | Kaya Rentals`;
+  const md = document.querySelector('meta[name="description"]'); if (md) md.content = `${l.type} to rent in ${l.suburb}, ${l.city} for ${rand(l.rent)} a month. Listed by the owner on Kaya Rentals, no agent fees.`;
   d.showModal();
   d.querySelector(".close").onclick = () => d.close();
   d.querySelector(".share").onclick = async () => {
@@ -91,7 +93,7 @@ async function open(id) {
 
 form.addEventListener("submit", e => { e.preventDefault(); load(); });
 $("#sort").addEventListener("change", load);
-$("#grid").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) open(c.dataset.id); });
+$("#grid").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) { e.preventDefault(); open(c.dataset.id); } });
 $("#grid").addEventListener("keydown", e => { const c = e.target.closest(".card"); if (c && e.key === "Enter") open(c.dataset.id); });
 $("#detail").addEventListener("click", e => { if (e.target.id === "detail") e.target.close(); });
 load();
