@@ -29,7 +29,7 @@ service cloud.firestore {
       allow update: if isAdmin()
                     || (signedIn() && resource.data.ownerId == request.auth.uid
                         && request.resource.data.status in ['pending', 'let']
-                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerId', 'verified', 'createdAt', 'rejectReason', 'reviewedAt'])
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['ownerId', 'verified', 'createdAt', 'rejectReason', 'reviewedAt', 'featuredUntil', 'bumpedAt'])
                         && validListing(request.resource.data));
       allow delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
     }
